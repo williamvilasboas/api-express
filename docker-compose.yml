@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_PORT: "${MYSQL_PORT}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PWD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER_APP}"
+      MYSQL_PASSWORD: "${MYSQL_USER_APP_PWD}"
+    ports:
+      - "3306:3306"
+    networks:
+      - mysql-compose-network
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./resources:/docker-entrypoint-initdb.d
+  app:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on:
+      - db
+
+    environment:
+      MYSQL_USERNAME: "${PMA_MYSQL_USER}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PWD}"
+      PMA_HOST: db
+
+    links:
+      - db:mysql
+    ports:
+      - 8088:80
+    networks:
+      - mysql-compose-network
+networks:
+  mysql-compose-network:
+    driver: bridge
